@@ -2,6 +2,10 @@
 # Bron : https://www.huizebruin.nl
 # Bron File : https://github.com/huizebruin/s0tool/tree/main/esphome
 # © Huizebruin.nl
+
+substitutions:
+  Watersensor_pin: "D2"
+
 #  # ⬇ Enable Home Assistant API ⬇ # 
 api:
   services:
@@ -52,7 +56,7 @@ binary_sensor:
     id: internal_pulse_counter
     name: Pulse Sensor Water
     pin:
-      number: D2
+      number: ${Watersensor_pin}
       inverted: true
       mode:
         input: true
@@ -64,7 +68,7 @@ sensor:
 #------------------------# Watermeter #------------------------#
 # ⬇ watermeter pulsen ⬇ #
   - platform: pulse_counter
-    pin: D2
+    pin: ${Watersensor_pin}
     id: watermeter_pulse
     name: "watermeter pulse"
     state_class: measurement
