@@ -18,11 +18,11 @@ esphome:
     version: "${vdate}"
   
 dashboard_import:
-  package_import_url: github://huizebruin/s0tool/esphome/s0-watermeter.yaml
+  package_import_url: github://kanuva/watermeter/esphome/s0-watermeter.yaml
 
 packages:   
   remote_package:
-    url: https://github.com/huizebruin/s0tool/
+    url: https://github.com/kanuva/watermeter/
     ref: main
     files: 
       - esphome/components/basis.yaml
