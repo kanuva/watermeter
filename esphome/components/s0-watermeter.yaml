@@ -4,7 +4,7 @@
 # © Huizebruin.nl
 
 substitutions:
-  Watersensor_pin: "D2"
+  Watersensor_pin: "D3"
 
 #  # ⬇ Enable Home Assistant API ⬇ # 
 api:
