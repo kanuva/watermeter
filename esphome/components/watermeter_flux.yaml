@@ -1,0 +1,118 @@
+# Delen en bewerken mag maar laat deze eerste regels staan.
+# Bron : https://www.huizebruin.nl
+# Bron File : https://github.com/huizebruin/s0tool/tree/main/esphome
+# © Huizebruin.nl
+#  # ⬇ Enable Home Assistant API ⬇ # 
+api:
+  services:
+    - service: meterstand_water
+      variables:
+        meter_value: float
+      then:
+        - globals.set:
+            id: initial_water_usage
+            value: !lambda "return ( meter_value - ((id(total_water_pulses) / (id(select_flow_pulse).state * 60 )) / 1000) ) ;"
+        - globals.set:
+            id: total_water_pulses
+            value:  "0"                      
+
+globals:
+  - id: initial_water_usage
+    type: float
+    restore_value: yes      
+#    initial_value: '010' 
+  - id: total_water_pulses
+    type: int
+    restore_value: yes
+  
+
+#   # ⬇ Water per liter rate ⬇ #
+number:
+  - platform: template
+    id: select_flow_pulse
+    name: 'Value sensor, example 7.5xQ you should put 7.5'
+    optimistic: true
+    mode: box
+    min_value: '0.001'
+    max_value: '100'
+    step: '1'
+    restore_value: yes
+    initial_value: '7.5'
+
+
+
+
+#------------------------# Watermeter #------------------------#
+binary_sensor:
+  - platform: gpio
+    id: internal_pulse_counter
+    name: Pulse Sensor Water
+    pin:
+      number: D2
+      inverted: true
+      mode:
+        input: true
+    on_press:
+      - then:
+          lambda: id(total_water_pulses) += 1;  
+
+sensor:
+#------------------------# Watermeter #------------------------#
+# ⬇ watermeter pulsen ⬇ #
+  - platform: pulse_counter
+    pin: D2
+    id: watermeter_pulse
+    name: "l/min at the moment"
+#    state_class: measurement
+    unit_of_measurement: "l/min"
+    update_interval: 60s
+    accuracy_decimals: 1
+    icon: "mdi:water-pump"
+    filters:
+      lambda: return (x / (id(select_flow_pulse).state * 60 ));
+
+# ⬇ Totaal watermeter ⬇ #      
+    total:
+      id: sensor_pulse_meter_total
+      name: "Total Liters"
+      unit_of_measurement: "L"
+      state_class: total_increasing
+      device_class: water
+      accuracy_decimals: 3
+      filters:
+        lambda: return (x / (id(select_flow_pulse).state * 60 ));
+
+      
+# ⬇ Total M3 ⬇ #
+  - platform: template
+    id: watermeter_total
+    name: "watermeter total m3"
+    state_class: "total_increasing"
+    icon: mdi:water
+    unit_of_measurement: "m³"
+    accuracy_decimals: 3
+    lambda: return id(initial_water_usage) + ((id(total_water_pulses) / (id(select_flow_pulse).state * 60 )) / 1000);
+
+# ⬇ Test Initial Water Usage ⬇ #
+  - platform: template
+    id: watermeter_test
+    name: "watermeter test initial water usage"
+    state_class: "total_increasing"
+    accuracy_decimals: 0
+    lambda: return id(initial_water_usage);
+    
+  - platform: template
+    id: watermeter_q_test
+    name: "watermeter Q test"
+ #   state_class: "total_increasing"
+    accuracy_decimals: 1
+    lambda: return id(select_flow_pulse).state * 60;
+
+# ⬇ Waterpulses  only web interface for debugging ⬇ #
+  - platform: template
+    id: watermeter_pulses
+    name: "watermeter pulses totaal"
+    state_class: "total_increasing"
+    accuracy_decimals: 0
+    lambda: return id(total_water_pulses);
+#    internal: True
