@@ -57,6 +57,7 @@ binary_sensor:
     name: Pulse Sensor Water
     pin:
       number: ${Watersensor_pin}
+      allow_other_uses: true
       inverted: true
       mode:
         input: true
@@ -69,6 +70,7 @@ sensor:
 # ⬇ watermeter pulsen ⬇ #
   - platform: pulse_counter
     pin: ${Watersensor_pin}
+    allow_other_uses: true
     id: watermeter_pulse
     name: "watermeter pulse"
     state_class: measurement
